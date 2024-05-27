@@ -3,6 +3,7 @@ package com.tms.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tms.dto.TicketDto;
 import com.tms.entity.Ticket;
+import com.tms.exception.SeatAlreadyBookedException;
 import com.tms.service.TicketService;
 
 @RestController
@@ -24,9 +26,13 @@ public class TicketController {
     private TicketService ticketService;
     
     @PostMapping("/purchase")
-    public ResponseEntity<Ticket> purchaseTicket(@RequestBody Ticket ticket) {
-        Ticket purchasedTicket = ticketService.purchaseTicket(ticket);
-        return ResponseEntity.ok(purchasedTicket);
+    public ResponseEntity<?> purchaseTicket(@RequestBody Ticket ticket) {
+        try {
+            Ticket purchasedTicket = ticketService.purchaseTicket(ticket);
+            return ResponseEntity.ok(purchasedTicket);
+        } catch (SeatAlreadyBookedException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
     
     @GetMapping("/details")

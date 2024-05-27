@@ -11,12 +11,20 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
     @Column(nullable = false)
     private String fromLocation;
-    
     @Column(nullable = false)
     private String toLocation;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+    @Column(nullable = false)
+    private double pricePaid;
+    @Column(nullable = false)
+    private String seatSection; 
+    @Column(nullable = false)
+    private Long seatId;
+    
     
     public Long getId() {
 		return id;
@@ -66,9 +74,7 @@ public class Ticket {
 		this.seatSection = seatSection;
 	}
 
-	@ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	
     
     public Long getSeatId() {
 		return seatId;
@@ -78,13 +84,7 @@ public class Ticket {
 		this.seatId = seatId;
 	}
 
-	@Column(nullable = false)
-    private double pricePaid;
-    
-    @Column(nullable = false)
-    private String seatSection; // A or B
-    @Column(nullable = false)
-    private Long seatId;
+	
 	public void setName(Object name) {
 		// TODO Auto-generated method stub
 		
