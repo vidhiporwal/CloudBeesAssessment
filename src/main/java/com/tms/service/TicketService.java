@@ -6,7 +6,7 @@ import com.tms.dto.TicketDto;
 import com.tms.entity.Ticket;
 
 public interface TicketService {
-	Ticket purchaseTicket(Ticket ticket);
+	Ticket purchaseTicket(Ticket ticket) throws Exception;
 
 	Ticket getTicketDetails(Long ticketId);
 

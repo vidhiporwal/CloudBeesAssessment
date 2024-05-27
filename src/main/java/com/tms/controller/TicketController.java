@@ -26,7 +26,13 @@ public class TicketController {
     private TicketService ticketService;
     
     @PostMapping("/purchase")
-    public ResponseEntity<?> purchaseTicket(@RequestBody Ticket ticket) {
+    public ResponseEntity<?> purchaseTicket(@RequestBody Ticket ticket) throws Exception {
+    	 // Check if any required fields are missing
+        if (ticket.getFromLocation() == null || ticket.getToLocation() == null ||
+            ticket.getUser() == null || ticket.getUser().getEmail() == null ||
+            ticket.getPricePaid() == 0.0 || ticket.getSeatSection() == null || ticket.getSeatId() == null) {
+            return ResponseEntity.badRequest().body("Please enter required parameters");
+        }
         try {
             Ticket purchasedTicket = ticketService.purchaseTicket(ticket);
             return ResponseEntity.ok(purchasedTicket);
@@ -36,7 +42,11 @@ public class TicketController {
     }
     
     @GetMapping("/details")
-    public ResponseEntity<Ticket> getTicketDetails(@RequestParam("ticketId") Long ticketId) {
+    public ResponseEntity<?> getTicketDetails(@RequestParam("ticketId") Long ticketId) {
+        if (ticketId == null) {
+            return ResponseEntity.badRequest().body("The 'ticketId' is missing or empty.");
+        }
+
         Ticket ticket = ticketService.getTicketDetails(ticketId);
         if (ticket != null) {
             return ResponseEntity.ok(ticket);
@@ -45,22 +55,33 @@ public class TicketController {
         }
     }
 
-    
     @GetMapping("/section")
-    public ResponseEntity<List<Ticket>> getUsersBySection(@RequestParam("section") String section) {
+    public ResponseEntity<?> getUsersBySection(@RequestParam("section") String section) {
+        if (section == null || section.isEmpty()) {
+            return ResponseEntity.badRequest().body("The 'section' is missing or empty.");
+        }
+
         List<Ticket> tickets = ticketService.getUsersBySection(section);
         return ResponseEntity.ok(tickets);
     }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<Void> removeTicket(@RequestParam("ticketId") Long ticketId) {
+    public ResponseEntity<?> removeTicket(@RequestParam("ticketId") Long ticketId) {
+        if (ticketId == null) {
+            return ResponseEntity.badRequest().body("The 'ticketId' is missing or empty.");
+        }
+
         ticketService.removeTicket(ticketId);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/modifySeat")
-    public ResponseEntity<Ticket> modifyTicket(@RequestParam("ticketId") Long ticketId, 
+    public ResponseEntity<?> modifyTicket(@RequestParam("ticketId") Long ticketId, 
                                                 @RequestBody TicketDto ticketRequest) {
+        if (ticketId == null) {
+            return ResponseEntity.badRequest().body("The 'ticketId' is missing or empty.");
+        }
+
         Ticket ticket = ticketService.modifyTicket(ticketId, ticketRequest);
         if (ticket != null) {
             return ResponseEntity.ok(ticket);
@@ -68,7 +89,7 @@ public class TicketController {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
    
 
 }
