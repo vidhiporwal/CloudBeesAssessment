@@ -85,13 +85,13 @@ public class TicketControllerTest {
     }
 
     @Test
-    public void testRemoveTicket() throws Exception {
-        Long ticketId = 1L;
+    public void testRemoveUserAndTickets() throws Exception {
+        Long userId = 1L;
         mockMvc.perform(delete("/tickets/remove")
-                .param("ticketId", String.valueOf(ticketId)))
+                .param("userId", String.valueOf(userId)))
                 .andExpect(status().isNoContent());
 
-        verify(ticketService, times(1)).removeTicket(ticketId);
+        verify(ticketService, times(1)).removeUserAndTickets(userId);
     }
 
     @Test

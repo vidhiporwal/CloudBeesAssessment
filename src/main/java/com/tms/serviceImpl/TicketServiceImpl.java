@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import com.tms.dto.TicketDto;
 import com.tms.entity.Ticket;
 import com.tms.repository.TicketRepository;
@@ -28,7 +27,7 @@ public class TicketServiceImpl implements TicketService {
 	private UserRepository userRepository;
 
 	private boolean isValidEmail(String email) {
-		
+
 		String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 		return email.matches(emailRegex);
 	}
@@ -38,7 +37,7 @@ public class TicketServiceImpl implements TicketService {
 
 		if (!isValidEmail(ticket.getUser().getEmail())) {
 
-			throw new InvalidEmailException("Invalid email format: " +ticket.getUser().getEmail() );
+			throw new InvalidEmailException("Invalid email format: " + ticket.getUser().getEmail());
 		}
 		Optional<User> existingUser = userRepository.findByEmail(ticket.getUser().getEmail());
 		User user;
@@ -81,20 +80,30 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 	@Override
-	public void removeTicket(Long ticketId) {
-		ticketRepository.deleteById(ticketId);
+	public List<Ticket> getTicketsBySectionAndUser(String section, Long userId) {
+		List<Ticket> ticketsInSectionAndUser = ticketRepository.findBySeatSectionAndUserId(section, userId);
+		return ticketsInSectionAndUser;
+	}
+
+	@Transactional
+	@Override
+	public void removeUserAndTickets(Long userId) {
+
+		ticketRepository.deleteByUserId(userId);
+
+		userRepository.deleteById(userId);
 	}
 
 	@Override
 	public Ticket modifyTicket(Long ticketId, TicketDto ticketRequest) {
-		
+
 		Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
 		if (ticket != null) {
-			
+
 			Optional<Ticket> existingTicket = ticketRepository.findBySeatIdAndSeatSection(ticketRequest.getSeatId(),
 					ticketRequest.getSeatSection());
 			if (existingTicket.isPresent()) {
-				
+
 				return null;
 			}
 

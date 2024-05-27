@@ -56,24 +56,32 @@ public class TicketController {
     }
 
     @GetMapping("/section")
-    public ResponseEntity<?> getUsersBySection(@RequestParam("section") String section) {
+    public ResponseEntity<?> getUsersBySection(@RequestParam("section") String section,
+                                                @RequestParam(value = "userId") Long userId) {
         if (section == null || section.isEmpty()) {
             return ResponseEntity.badRequest().body("The 'section' is missing or empty.");
         }
 
-        List<Ticket> tickets = ticketService.getUsersBySection(section);
-        return ResponseEntity.ok(tickets);
+        List<Ticket> ticketsInSection;
+        
+            ticketsInSection = ticketService.getTicketsBySectionAndUser(section, userId);
+        
+        
+        return ResponseEntity.ok(ticketsInSection);
     }
+
+
 
     @DeleteMapping("/remove")
-    public ResponseEntity<?> removeTicket(@RequestParam("ticketId") Long ticketId) {
-        if (ticketId == null) {
-            return ResponseEntity.badRequest().body("The 'ticketId' is missing or empty.");
+    public ResponseEntity<?> removeUserAndTickets(@RequestParam("userId") Long userId) {
+        if (userId == null) {
+            return ResponseEntity.badRequest().body("The 'userId' is missing or empty.");
         }
 
-        ticketService.removeTicket(ticketId);
+        ticketService.removeUserAndTickets(userId);
         return ResponseEntity.noContent().build();
     }
+
 
     @PutMapping("/modifySeat")
     public ResponseEntity<?> modifyTicket(@RequestParam("ticketId") Long ticketId, 

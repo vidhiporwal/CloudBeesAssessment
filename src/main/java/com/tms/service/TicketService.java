@@ -12,7 +12,9 @@ public interface TicketService {
 
 	List<Ticket> getUsersBySection(String section);
 
-	void removeTicket(Long ticketId);
-
 	Ticket modifyTicket(Long ticketId, TicketDto ticketRequest);
+
+	List<Ticket> getTicketsBySectionAndUser(String section, Long userId);
+
+	void removeUserAndTickets(Long userId);
 }

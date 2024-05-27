@@ -15,4 +15,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 	Optional<Ticket> findBySeatId(Long seatId);
 
 	Optional<Ticket> findBySeatIdAndSeatSection(Long seatId, String seatSection);
+
+	List<Ticket> findBySeatSectionAndUserId(String section, Long userId);
+
+	void deleteByUserId(Long userId);
 }
