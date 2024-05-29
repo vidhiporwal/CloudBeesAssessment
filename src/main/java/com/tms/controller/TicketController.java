@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tms.dto.TicketDto;
 import com.tms.entity.Ticket;
+import com.tms.exception.InvalidEmailException;
 import com.tms.exception.SeatAlreadyBookedException;
 import com.tms.service.TicketService;
 
@@ -24,20 +25,23 @@ import com.tms.service.TicketService;
 public class TicketController {
     @Autowired
     private TicketService ticketService;
-    
     @PostMapping("/purchase")
     public ResponseEntity<?> purchaseTicket(@RequestBody Ticket ticket) throws Exception {
-    	 // Check if any required fields are missing
         if (ticket.getFromLocation() == null || ticket.getToLocation() == null ||
             ticket.getUser() == null || ticket.getUser().getEmail() == null ||
-            ticket.getPricePaid() == 0.0 || ticket.getSeatSection() == null || ticket.getSeatId() == null) {
+            ticket.getPricePaid() == 0.0) {
             return ResponseEntity.badRequest().body("Please enter required parameters");
         }
+
         try {
             Ticket purchasedTicket = ticketService.purchaseTicket(ticket);
             return ResponseEntity.ok(purchasedTicket);
         } catch (SeatAlreadyBookedException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (InvalidEmailException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
     
