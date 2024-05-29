@@ -23,85 +23,84 @@ import com.tms.service.TicketService;
 @RestController
 @RequestMapping("/tickets")
 public class TicketController {
-    @Autowired
-    private TicketService ticketService;
-    @PostMapping("/purchase")
-    public ResponseEntity<?> purchaseTicket(@RequestBody Ticket ticket) throws Exception {
-        if (ticket.getFromLocation() == null || ticket.getToLocation() == null ||
-            ticket.getUser() == null || ticket.getUser().getEmail() == null ||
-            ticket.getPricePaid() == 0.0) {
-            return ResponseEntity.badRequest().body("Please enter required parameters");
-        }
+	@Autowired
+	private TicketService ticketService;
 
-        try {
-            Ticket purchasedTicket = ticketService.purchaseTicket(ticket);
-            return ResponseEntity.ok(purchasedTicket);
-        } catch (SeatAlreadyBookedException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (InvalidEmailException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
-        }
-    }
-    
-    @GetMapping("/details")
-    public ResponseEntity<?> getTicketDetails(@RequestParam("ticketId") Long ticketId) {
-        if (ticketId == null) {
-            return ResponseEntity.badRequest().body("The 'ticketId' is missing or empty.");
-        }
+	@PostMapping("/purchase")
+	public ResponseEntity<?> purchaseTicket(@RequestBody Ticket ticket) throws Exception {
+		if (ticket.getFromLocation() == null || ticket.getToLocation() == null || ticket.getUser() == null
+				|| ticket.getUser().getEmail() == null || ticket.getPricePaid() == 0.0) {
+			return ResponseEntity.badRequest().body("Please enter required parameters");
+		}
 
-        Ticket ticket = ticketService.getTicketDetails(ticketId);
-        if (ticket != null) {
-            return ResponseEntity.ok(ticket);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+		try {
+			Ticket purchasedTicket = ticketService.purchaseTicket(ticket);
+			return ResponseEntity.ok(purchasedTicket);
+		} catch (SeatAlreadyBookedException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+		} catch (InvalidEmailException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+		}
+	}
 
-    @GetMapping("/section")
-    public ResponseEntity<?> getUsersBySection(@RequestParam("section") String section,
-                                                @RequestParam(value = "userId") Long userId) {
-        if (section == null || section.isEmpty()) {
-            return ResponseEntity.badRequest().body("The 'section' is missing or empty.");
-        }
+	@GetMapping("/details")
+	public ResponseEntity<?> getTicketDetails(@RequestParam("ticketId") Long ticketId) {
+		if (ticketId == null) {
+			return ResponseEntity.badRequest().body("The 'ticketId' is missing or empty.");
+		}
 
-        List<Ticket> ticketsInSection;
-        
-            ticketsInSection = ticketService.getTicketsBySectionAndUser(section, userId);
-        
-        
-        return ResponseEntity.ok(ticketsInSection);
-    }
+		Ticket ticket = ticketService.getTicketDetails(ticketId);
+		if (ticket != null) {
+			return ResponseEntity.ok(ticket);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
 
+	@GetMapping("/section")
+	public ResponseEntity<?> getUserTicketsBySection(@RequestParam("section") String section,
+			@RequestParam(value = "userId") Long userId) {
+		if (section == null || section.isEmpty()) {
+			return ResponseEntity.badRequest().body("The 'section' is missing or empty.");
+		}
 
+		List<Ticket> ticketsInSection;
 
-    @DeleteMapping("/remove")
-    public ResponseEntity<?> removeUserAndTickets(@RequestParam("userId") Long userId) {
-        if (userId == null) {
-            return ResponseEntity.badRequest().body("The 'userId' is missing or empty.");
-        }
+		ticketsInSection = ticketService.getTicketsBySectionAndUser(section, userId);
 
-        ticketService.removeUserAndTickets(userId);
-        return ResponseEntity.noContent().build();
-    }
+		return ResponseEntity.ok(ticketsInSection);
+	}
 
+	@DeleteMapping("/remove")
+	public ResponseEntity<?> removeUserAndTickets(@RequestParam("userId") Long userId) {
+		if (userId == null) {
+			return ResponseEntity.badRequest().body("The 'userId' is missing or empty.");
+		}
 
-    @PutMapping("/modifySeat")
-    public ResponseEntity<?> modifyTicket(@RequestParam("ticketId") Long ticketId, 
-                                                @RequestBody TicketDto ticketRequest) {
-        if (ticketId == null) {
-            return ResponseEntity.badRequest().body("The 'ticketId' is missing or empty.");
-        }
+		try {
+			ticketService.removeUserAndTickets(userId);
+			return ResponseEntity.ok("User with ID " + userId + " deleted successfully.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Failed to delete user with ID " + userId + ".");
+		}
+	}
 
-        Ticket ticket = ticketService.modifyTicket(ticketId, ticketRequest);
-        if (ticket != null) {
-            return ResponseEntity.ok(ticket);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+	@PutMapping("/modifySeat")
+	public ResponseEntity<?> modifyTicket(@RequestParam("ticketId") Long ticketId,
+			@RequestBody TicketDto ticketRequest) {
+		if (ticketId == null) {
+			return ResponseEntity.badRequest().body("The 'ticketId' is missing or empty.");
+		}
 
-   
+		Ticket ticket = ticketService.modifyTicket(ticketId, ticketRequest);
+		if (ticket != null) {
+			return ResponseEntity.ok(ticket);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
 
 }

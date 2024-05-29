@@ -26,8 +26,9 @@ public class TicketServiceImpl implements TicketService {
 	private TicketRepository ticketRepository;
 	@Autowired
 	private UserRepository userRepository;
-	private static final String[] SEAT_SECTIONS = {"A", "B"};
-    private static final int SEAT_ID_RANGE = 100;
+	private static final String[] SEAT_SECTIONS = { "A", "B" };
+	private static final int SEAT_ID_RANGE = 100;
+
 	private boolean isValidEmail(String email) {
 
 		String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
@@ -59,30 +60,32 @@ public class TicketServiceImpl implements TicketService {
 			throw new SeatAlreadyBookedException("The seat " + ticket.getSeatId() + " in section "
 					+ ticket.getSeatSection() + " is already booked.");
 		}
-		 String[] seatAssignment = assignRandomSeat();
+		String[] seatAssignment = assignRandomSeat();
 		Ticket t = new Ticket();
 		t.setFromLocation(ticket.getFromLocation());
 		t.setToLocation(ticket.getToLocation());
 		t.setUser(user);
 		t.setPricePaid(ticket.getPricePaid());
-		 t.setSeatSection(seatAssignment[0]);
-	        t.setSeatId(Long.parseLong(seatAssignment[1]));
+		t.setSeatSection(seatAssignment[0]);
+		t.setSeatId(Long.parseLong(seatAssignment[1]));
 		ticketRepository.save(t);
 		return t;
 	}
+
 	private String[] assignRandomSeat() throws Exception {
-        Random random = new Random();
+		Random random = new Random();
 
-        while (true) {
-            String seatSection = SEAT_SECTIONS[random.nextInt(SEAT_SECTIONS.length)];
-            Long seatId = (long) (random.nextInt(SEAT_ID_RANGE) + 1);
+		while (true) {
+			String seatSection = SEAT_SECTIONS[random.nextInt(SEAT_SECTIONS.length)];
+			Long seatId = (long) (random.nextInt(SEAT_ID_RANGE) + 1);
 
-            Optional<Ticket> existingTicket = ticketRepository.findBySeatIdAndSeatSection(seatId, seatSection);
-            if (!existingTicket.isPresent()) {
-                return new String[]{seatSection, seatId.toString()};
-            }
-        }
-    }
+			Optional<Ticket> existingTicket = ticketRepository.findBySeatIdAndSeatSection(seatId, seatSection);
+			if (!existingTicket.isPresent()) {
+				return new String[] { seatSection, seatId.toString() };
+			}
+		}
+	}
+
 	@Override
 	public Ticket getTicketDetails(Long ticketId) {
 		return ticketRepository.findById(ticketId).orElse(null);
