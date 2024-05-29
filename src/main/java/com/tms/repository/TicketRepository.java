@@ -10,7 +10,7 @@ import com.tms.entity.Ticket;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
-    List<Ticket> findBySeatSection(String section);
+	List<Ticket> findBySeatSection(String section);
 
 	Optional<Ticket> findBySeatId(Long seatId);
 
