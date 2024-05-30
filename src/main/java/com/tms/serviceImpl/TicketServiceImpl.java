@@ -16,6 +16,7 @@ import com.tms.repository.UserRepository;
 import com.tms.service.TicketService;
 import com.tms.entity.User;
 import com.tms.exception.InvalidEmailException;
+import com.tms.exception.NoSeatsAvailableException;
 import com.tms.exception.SeatAlreadyBookedException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +28,7 @@ public class TicketServiceImpl implements TicketService {
 	@Autowired
 	private UserRepository userRepository;
 	private static final String[] SEAT_SECTIONS = { "A", "B" };
-	private static final int SEAT_ID_RANGE = 100;
+	private static final int SEAT_ID_RANGE = 5;
 
 	private boolean isValidEmail(String email) {
 
@@ -42,6 +43,9 @@ public class TicketServiceImpl implements TicketService {
 
 			throw new InvalidEmailException("Invalid email format: " + ticket.getUser().getEmail());
 		}
+		if (!areSeatsAvailable()) {
+	        throw new NoSeatsAvailableException("No seats available.");
+	    }
 		Optional<User> existingUser = userRepository.findByEmail(ticket.getUser().getEmail());
 		User user;
 		if (existingUser.isPresent()) {
@@ -84,6 +88,22 @@ public class TicketServiceImpl implements TicketService {
 				return new String[] { seatSection, seatId.toString() };
 			}
 		}
+	}
+	private boolean areSeatsAvailable() {
+	    try {
+	        for (String section : SEAT_SECTIONS) {
+	            for (int i = 1; i <= SEAT_ID_RANGE; i++) {
+	                Optional<Ticket> existingTicket = ticketRepository.findBySeatIdAndSeatSection((long) i, section);
+	                if (!existingTicket.isPresent()) {
+	                    return true;
+	                }
+	            }
+	        }
+	        return false; 
+	    } catch (Exception ex) {
+	      
+	        return false;
+	    }
 	}
 
 	@Override
